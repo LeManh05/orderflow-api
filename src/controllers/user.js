@@ -42,3 +42,24 @@ export const Login = async (req,res) => {
         res.status(500).json({success: false, message: 'Đăng nhập thất bại'})
     }
 }
+
+export const GetMe = async(req,res) => {
+    try {
+        const user = await UserModel.findById(req.user.id)
+        if(user) {
+            return res.status(200).json({success: true, message: 'Thành công', user: {id: user._id, name: user.name, email: user.email}})
+        }else {
+            return res.status(404).json({success: false, message: 'Không tìm thấy user'})
+        }
+    } catch (error) {
+        return res.status(500).json({success: false, message: 'Thất bại'})
+    }
+}
+
+export const AdminTest = (req,res) => {
+    try {
+        return res.status(200).json({success: true, message: 'Thành công'})
+    } catch (error) {
+        return res.status(500).json({success: false, message: 'Thất bại'})
+    }
+}
