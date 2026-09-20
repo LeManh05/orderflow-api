@@ -16,7 +16,24 @@ export const createProduct = async(req,res) => {
 
 export const getAllProducts = async(req,res) => {
     try {
-        const products = await ProductModel.find()
+        const page = req.query.page || 1
+        const limit = req.query.limit || 10
+        const search = req.query.search || ''
+        const minPrice = req.query.minPrice || 0
+        const maxPrice = req.query.maxPrice || 0
+        let sort = req.query.sort || ''
+        sort = sort === 'price_desc' ? {price: -1} : sort === 'price_asc' ? {price: 1} : {createdAt: -1}
+        const filter = {}
+        if(search) {
+            filter.name = {$regex: search, $options: 'i'}
+        }
+        if(minPrice || maxPrice) {
+            filter.price = {}
+            if(minPrice) filter.price.$gte = minPrice
+            if(maxPrice) filter.price.$lte = maxPrice
+        }
+        const skip = (page - 1) * limit
+        const products = await ProductModel.find(filter).sort(sort).skip(skip).limit(limit)
         res.status(200).json({success: true, message: 'Lấy thành công', data:products})
     } catch (error) {
         res.status(500).json({success: false, message: 'Lấy thất bại',})
