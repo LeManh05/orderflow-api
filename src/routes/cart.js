@@ -1,5 +1,6 @@
 import { Router } from "express";
 import authMiddleware from "../middlewares/auth.js";
+import { addCartItem, getCart, updateCartItem, deleteCartItem, clearCart } from "../controllers/cart.js";
 
 const router = Router()
 router.post('/items',authMiddleware,addCartItem)
