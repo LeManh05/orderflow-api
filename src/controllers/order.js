@@ -109,3 +109,52 @@ export const cancelOrder = async(req,res,next) => {
         return res.status(500).json({success: false, message: 'Hủy thất bại'})
     }
 }
+
+export const getMyOrders = async(req,res,next) => {
+    try {
+        const userId = req.user.id
+        const orders = await OrderModel.find({customer: userId})
+        return res.status(200).json({success:true, message: 'Lấy đơn hàng thành công', data: orders})
+    } catch (error) {
+        return res.status(500).json({success: false, message: 'Lấy đơn hàng thất bại'})
+    }
+}
+
+export const getOrderById = async(req,res,next) => {
+    try {
+        const userId = req.user.id
+        const id = req.params.id
+        const order = await OrderModel.findById(id)
+        if(!order){
+            return res.status(404).json({success:false, message: 'Không tìm thấy đơn hàng'})
+        }
+        if(userId.toString() !== order.customer.toString()) {
+            return res.status(403).json({success:false, message: 'Không có quyền xem đơn hàng'})
+        }
+        return res.status(200).json({success:true, message: 'Lấy đơn hàng thành công', data: order})
+    } catch (error) {
+        return res.status(500).json({success: false, message: 'Lấy đơn hàng thất bại'})
+    }
+}
+
+export const getAllOrders = async(req,res,next) => {
+    try {
+        const orders = await OrderModel.find({})
+        return res.status(200).json({success:true, message: 'Lấy đơn hàng thành công', data: orders})
+    } catch (error) {
+        return res.status(500).json({success: false, message: 'Lấy đơn hàng thất bại'})
+    }
+}
+
+export const getAdminOrderById = async(req,res,next) => {
+    try {
+        const id = req.params.id
+        const order = await OrderModel.findById(id)
+        if(!order){
+            return res.status(404).json({success:false, message: 'Không tìm thấy đơn hàng'})
+        }
+        return res.status(200).json({success:true, message: 'Lấy đơn hàng thành công', data: order})
+    } catch (error) {
+        return res.status(500).json({success: false, message: 'Lấy đơn hàng thất bại'})
+    }
+}
