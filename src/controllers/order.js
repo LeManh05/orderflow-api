@@ -50,3 +50,62 @@ export const createOrder = async(req,res,next) => {
         return res.status(500).json({success: false, message: 'Đặt hàng thất bại'})
     }
 }
+
+export const updateStatusOrder = async(req,res,next) => {
+    try {
+        const id = req.params.id
+        const status = req.body.status
+        const order = await OrderModel.findById(id)
+        if(!order){
+            return res.status(404).json({success:false, message: 'Không tìm thấy đơn hàng'})
+        }
+        const enumValidStatus = ['pending','confirmed','shipping','completed','cancelled']
+        if(!enumValidStatus.includes(status)) {
+            return res.status(400).json({success:false, message: 'Trạng thái không hợp lệ'})
+        }
+        if(order.status === 'pending'  && status === 'confirmed'){
+            order.status = status
+            await order.save()
+            return res.status(200).json({success:true, message: 'Cập nhật thành công', data: order})
+        }else if(order.status === 'confirmed'  && status === 'shipping'){
+            order.status = status
+            await order.save()
+            return res.status(200).json({success:true, message: 'Cập nhật thành công', data: order})
+        }else if(order.status === 'shipping'  && status === 'completed'){
+            order.status = status
+            await order.save()
+            return res.status(200).json({success:true, message: 'Cập nhật thành công', data: order})
+        }else{
+            return res.status(400).json({success:false, message: 'Cập nhật thất bại'})
+        }
+    } catch (error) {
+        return res.status(500).json({success: false, message: 'Cập nhật thất bại'})
+    }
+}
+
+export const cancelOrder = async(req,res,next) => {
+    try {
+       const userId = req.user.id
+       const orderId = req.params.id
+       const order = await OrderModel.findById(orderId)
+        if(!order){
+            return res.status(404).json({success:false, message: 'Không tìm thấy đơn hàng'})
+        }
+        if(userId.toString() !== order.customer.toString()) {
+            return res.status(403).json({success:false, message: 'Không có quyền hủy đơn hàng'})
+        }
+        if(order.status !== 'pending') {
+            return res.status(400).json({success:false, message: 'Đơn hàng không thể hủy'})
+        }
+        for(const item of order.items) {
+            const product = await ProductModel.findById(item.product)
+            product.stock += item.quantity
+            await product.save()
+        }
+        order.status = 'cancelled'
+        await order.save()
+        return res.status(200).json({success:true, message: 'Đã hủy đơn hàng', data: order})
+    } catch (error) {
+        return res.status(500).json({success: false, message: 'Hủy thất bại'})
+    }
+}
