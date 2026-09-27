@@ -139,8 +139,33 @@ export const getOrderById = async(req,res,next) => {
 
 export const getAllOrders = async(req,res,next) => {
     try {
-        const orders = await OrderModel.find({})
-        return res.status(200).json({success:true, message: 'Lấy đơn hàng thành công', data: orders})
+        const customer = req.query.customer
+        const page = Number(req.query.page) || 1
+        if(page < 1){
+            return res.status(400).json({success:false, message: 'Số trang không hợp lệ'})
+        }
+        const limit = Number(req.query.limit) || 10
+        if(limit < 1){
+            return res.status(400).json({success:false, message: 'Số lượng không hợp lệ'})
+        }
+        const skip = (page - 1) * limit
+        const status = req.query.status
+        const fromDate = req.query.fromDate
+        const toDate = req.query.toDate
+        const filter = {}
+        if(status){
+            filter.status = status
+        }
+        if(customer){
+            filter.customer = customer
+        }
+        if(fromDate && toDate){
+            filter.createdAt = {$gte: new Date(fromDate), $lte: new Date(`${toDate}T23:59:59.999`)}
+        }
+        const totalOrder = await OrderModel.countDocuments(filter)
+        const totalPage = Math.ceil(totalOrder / limit)
+        const orders = await OrderModel.find(filter).skip(skip).limit(limit)
+        return res.status(200).json({success:true, message: 'Lấy đơn hàng thành công', data: orders, pagination: {page, limit, totalOrder, totalPage}})
     } catch (error) {
         return res.status(500).json({success: false, message: 'Lấy đơn hàng thất bại'})
     }
