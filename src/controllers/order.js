@@ -110,7 +110,7 @@ export const cancelOrder = async(req,res,next) => {
     }
 }
 
-export const getMyOrders = async(req,res,next) => {
+export const getMyOrders = async(req,res) => {
     try {
         const userId = req.user.id
         const orders = await OrderModel.find({customer: userId})
@@ -120,7 +120,7 @@ export const getMyOrders = async(req,res,next) => {
     }
 }
 
-export const getOrderById = async(req,res,next) => {
+export const getOrderById = async(req,res) => {
     try {
         const userId = req.user.id
         const id = req.params.id
@@ -137,7 +137,7 @@ export const getOrderById = async(req,res,next) => {
     }
 }
 
-export const getAllOrders = async(req,res,next) => {
+export const getAllOrders = async(req,res) => {
     try {
         const customer = req.query.customer
         const page = Number(req.query.page) || 1
@@ -171,7 +171,7 @@ export const getAllOrders = async(req,res,next) => {
     }
 }
 
-export const getAdminOrderById = async(req,res,next) => {
+export const getAdminOrderById = async(req,res) => {
     try {
         const id = req.params.id
         const order = await OrderModel.findById(id)
