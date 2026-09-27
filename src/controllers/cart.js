@@ -4,11 +4,11 @@ export const addCartItem = async(req,res) => {
     try {
         const userId = req.user.id
         const {productId, quantity} = req.body
-        if(quantity < 1){
-            return res.status(400).json({success: false, message: 'Số lượng phải lớn hơn 0'})
-        }
         if(!productId || !quantity) {
             return res.status(400).json({success: false, message: 'Thiếu thông tin'})
+        }
+        if(quantity < 1){
+            return res.status(400).json({success: false, message: 'Số lượng phải lớn hơn 0'})
         }
         const product = await ProductModel.findById(productId)
         if(!product) {
@@ -52,7 +52,7 @@ export const getCart = async(req,res) => {
             return res.status(404).json({success: false, message: 'Không tìm thấy giỏ hàng'})   
         }
         await cart.populate('items.product', 'name price')
-        return res.status(200).json({success: true, message: 'Thêm thành công', data:cart})
+        return res.status(200).json({success: true, message: 'Lấy giỏ hàng thành công', data:cart})
     } catch (error) {
         return res.status(500).json({success: false, message: 'Lỗi Server'})    
     }
@@ -63,11 +63,11 @@ export const updateCartItem = async(req,res) => {
         const userId = req.user.id
         const productId = req.params.productId
         const quantity = req.body.quantity
-        if(quantity < 1){
-            return res.status(400).json({success: false, message: 'Số lượng phải lớn hơn 0'})    
-        }
         if(!productId || !quantity) {
             return res.status(400).json({success: false, message: 'Thiếu thông tin'})    
+        }
+        if(quantity < 1){
+            return res.status(400).json({success: false, message: 'Số lượng phải lớn hơn 0'})    
         }
         const product = await ProductModel.findById(productId)
         if(!product) {

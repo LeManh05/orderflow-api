@@ -1,7 +1,7 @@
 import OrderModel from "../models/order.js"
 import cartModel from "../models/cart.js"
 import ProductModel from "../models/product.js"
-export const createOrder = async(req,res,next) => {
+export const createOrder = async(req,res) => {
     try {
         const userId = req.user.id
         const cart = await cartModel.findOne({customer: userId})
@@ -17,7 +17,7 @@ export const createOrder = async(req,res,next) => {
                 return res.status(404).json({success: false, message: 'Sản phẩm không tồn tại'})  
             }
             if(product.isActive === false){
-                return res.status(404).json({success: false, message: 'Sản phẩm đã ngừng hoạt động'})   
+                return res.status(409).json({success: false, message: 'Sản phẩm đã ngừng hoạt động'})   
             }
             if(product.stock < item.quantity){
                 return res.status(409).json({success: false, message: 'Số lượng không được lớn hơn hàng tồn kho'})   
